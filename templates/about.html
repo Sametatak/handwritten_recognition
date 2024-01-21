@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+ 
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+
+  <title>hadwritten recognation</title>
+
+
+  <link rel="stylesheet"  href="./../static/css/main.css" />
+  <link href="./../static/css/style.css" rel="stylesheet" />
+  <link href="./../static/css/responsive.css" rel="stylesheet" />
+
+
+</head>
+
+<body class="sub_page">
+  <div class="navbar">
+    <a href="#home">Home</a>
+    <a href="#Train">Train</a>
+
+  </div>  
+
+  
+
+  <section class="about_section ">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="main_event">
+          <h1>Draw on Canvas</h1>
+          <div id="canvas-container">
+            
+            <canvas id="canvas" width="280" height="280"></canvas>
+            <br>
+            
+            <button onclick="saveCanvas()">Eveulate Drawing</button>
+            
+            <div id="right-panel"><span id="prediction-text"></span></div>
+          </div>
+          <button onclick="clearCanvas()">Clear Drawing</button>
+          
+
+
+          <script>
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+
+            let drawing = false;
+
+            canvas.addEventListener('mousedown', (e) => {
+                drawing = true;
+                draw(e);  
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                drawing = false;
+                context.beginPath();
+            });
+
+            canvas.addEventListener('mousemove', draw);
+
+            function draw(e) {
+                if (!drawing) return;
+
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                context.lineWidth = 5; 
+                context.lineCap = 'round';
+                context.strokeStyle = '#000'; 
+
+                context.lineTo(x, y);
+                context.stroke();
+                context.beginPath();
+                context.moveTo(x, y);
+            }
+
+            function saveCanvas() {
+                const tempCanvas = document.createElement('canvas');
+                const tempContext = tempCanvas.getContext('2d');
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+
+                
+                tempContext.fillStyle = '#fff';
+                tempContext.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+               
+                tempContext.globalCompositeOperation = 'source-over';
+                tempContext.lineWidth = 5; 
+                tempContext.lineCap = 'round';
+                tempContext.strokeStyle = '#000'; 
+                tempContext.strokeRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+                
+                const dataURL = tempCanvas.toDataURL();
+                fetch('/save', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `data=${encodeURIComponent(dataURL)}`,
+                    })
+                    .then(response => response.text())
+                    .then(prediction => {
+                       
+                        document.getElementById('prediction-text').innerText = prediction;
+                    });
+                }
+              function clearCanvas() {
+              context.clearRect(0, 0, canvas.width, canvas.height); 
+              }
+          </script>
+
+
+
+        </div>
+
+        
+        <div class="detail-box">
+          <div class="heading_container heading_center">
+            <h2>
+              AI project
+            </h2>
+          </div>
+          <p>
+            Simple hadwritten number recognation with tensorflow
+
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <footer class="footer_section">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-xl-6">
+          <p>
+            YOU CAN TRAIN THE MODEL IN 'Train' PAGE
+          </p>
+        </div>
+        <div class="col-xl-6">
+          <div class="link_box">
+            <a class="" href="index.html">
+              
+            </a>
+            <a class="" href="about.html">
+              Train
+            </a>
+            <a class="" href="portfolio.html">
+              Portfolio
+            </a>
+            <a class="" href="team.html">
+              
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+ 
+
+  <script src="./../static/js/custom.js"></script>
+
+
+</body>
+
+</html>
